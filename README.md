@@ -1,10 +1,8 @@
 # 🚀 Domain Intelligence Agent
 
-**Bulk WHOIS + DNS + BuiltWith Analysis Tool**  
-A professional AI-powered agent to analyze 50-100+ domains in one click.
+**Bulk WHOIS + DNS + BuiltWith Analysis Tool** 
 
-![Streamlit App](https://via.placeholder.com/800x400/366092/FFFFFF?text=Domain+Intelligence+Agent)  
-*(Add your screenshot here after first run)*
+A professional AI-powered agent to analyze 50-100+ domains in one click.
 
 ---
 
