@@ -21,14 +21,14 @@ A professional AI-powered agent to analyze 50-100+ domains in one click.
 ## 📁 Project Structure
 
 domain-intelligence-agent/
-├── agent/
-│   ├── app.py                 # Frontend (Streamlit UI)
-│   └── website_analyzer.py    # Backend (Core Logic)
-├── requirements.txt
-├── .env.example
-├── README.md
-├── sample_domains.csv
-└── .gitignore
+├── agent/<br>
+│   ├── app.py                 # Frontend (Streamlit UI)<br>
+│   └── website_analyzer.py    # Backend (Core Logic<br>
+├── requirements.txt<br>
+├── .env.example<br>
+├── README.md<br>
+├── sample_domains.csv<br>
+└── .gitignore<br>
 text
 
 ## 🛠️ Technologies Used
