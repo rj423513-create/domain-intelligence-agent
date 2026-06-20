@@ -20,7 +20,7 @@ A professional AI-powered agent to analyze 50-100+ domains in one click.
 
 ## 📁 Project Structure
 
-domain-intelligence-agent/
+domain-intelligence-agent/<br>
 ├── agent/<br>
 │   ├── app.py                 # Frontend (Streamlit UI)<br>
 │   └── website_analyzer.py    # Backend (Core Logic<br>
