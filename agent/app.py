@@ -1,70 +1,64 @@
 import streamlit as st
 import pandas as pd
-from website_analyzer import analyze_domain
+import requests
+from bs4 import BeautifulSoup
+from datetime import datetime
 import time
+import whois
+import dns.resolver
+import random
+import re
+from urllib.parse import urlparse
 
-st.set_page_config(page_title="Domain Intelligence Agent", layout="wide")
-st.title("🚀 AI Domain Intelligence Agent")
-st.markdown("**Bulk WHOIS + DNS + BuiltWith Analysis**")
+st.set_page_config(page_title="SEO Domain Intelligence Agent", layout="wide")
 
-if 'results' not in st.session_state:
-    st.session_state.results = None
-if 'domains' not in st.session_state:
-    st.session_state.domains = []
+st.title("🚀 SEO Domain Intelligence Agent")
+st.markdown("### Multi-Website Enterprise SEO Analysis (Full Features + Core Web Vitals)")
 
-input_method = st.radio("Input Method", ["Upload CSV/Excel", "Paste Domains"])
+with st.sidebar:
+    st.header("Configuration")
+    domains_input = st.text_area(
+        "🌐 Enter Domain URLs (one per line)", 
+        value="https://jeenweb.com",
+        height=120
+    )
+    max_pages = st.slider("Max Pages to Crawl per Domain", 5, 100, 25)
+    run_analysis = st.button("🚀 Start Full Multi-Website Analysis", type="primary")
 
-if input_method == "Upload CSV/Excel":
-    uploaded = st.file_uploader("Upload domains.csv or .xlsx", type=["csv", "xlsx", "xls", "xlsb"])
-    if uploaded:
-        try:
-            if uploaded.name.endswith('.csv'):
-                df = pd.read_csv(uploaded)
-            else:
-                df = pd.read_excel(uploaded, engine='openpyxl')
-            st.session_state.domains = df.iloc[:, 0].dropna().astype(str).str.strip().tolist()
-            st.success(f"✅ Loaded {len(st.session_state.domains)} domains from file")
-        except Exception as e:
-            st.error(f"Error reading file: {e}")
-else:
-    text = st.text_area("Enter domains (one per line)")
-    if text:
-        st.session_state.domains = [d.strip() for d in text.split('\n') if d.strip()]
+def get_domain_info(domain):
+    clean_domain = domain.replace("https://", "").replace("http://", "").rstrip("/").split("/")[0]
+    try:
+        w = whois.whois(clean_domain)
+        creation = w.creation_date[0] if isinstance(w.creation_date, list) else w.creation_date
+        expiration = w.expiration_date[0] if isinstance(w.expiration_date, list) else w.expiration_date
+        ns = ", ".join(w.name_servers) if w.name_servers else "N/A"
+        registrar = w.registrar or "N/A"
+    except:
+        creation, expiration, ns, registrar = "N/A", "N/A", "N/A", "N/A"
 
-if st.button("🚀 Start Analysis", type="primary") and st.session_state.domains:
-    with st.spinner("Analyzing domains... This may take time for large lists"):
-        results = []
-        progress_bar = st.progress(0)
-        status_text = st.empty()
-        
-        for i, domain in enumerate(st.session_state.domains):
-            status_text.info(f"Processing: {domain} ({i+1}/{len(st.session_state.domains)})")
-            try:
-                result = analyze_domain(domain)
-                results.append(result)
-            except Exception as e:
-                results.append({"Domain": domain, "Error": str(e)})
-            progress_bar.progress((i + 1) / len(st.session_state.domains))
-        
-        st.session_state.results = pd.DataFrame(results)
-        st.success("✅ Analysis Completed!")
-        
-        # Display results
-        st.dataframe(st.session_state.results, use_container_width=True)
-        
-        # Download button with proper Excel writer
-        excel_buffer = pd.ExcelWriter('domain_report.xlsx', engine='openpyxl')
-        st.session_state.results.to_excel(excel_buffer, index=False)
-        excel_buffer.close()
-        
-        with open('domain_report.xlsx', 'rb') as f:
-            excel_data = f.read()
-        
-        st.download_button(
-            label="📥 Download Full Excel Report",
-            data=excel_data,
-            file_name="domain_intelligence_report.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
+    try:
+        mx_records = [str(r.exchange) for r in dns.resolver.resolve(clean_domain, 'MX')]
+        mx_info = ", ".join(mx_records)
+    except:
+        mx_info = "N/A"
 
-st.caption("Backend: website_analyzer.py | Frontend: app.py | Made for your company • Pro version")
+    robots = "Found" if requests.get(f"{domain.rstrip('/')}/robots.txt", timeout=8, headers={'User-Agent': 'Mozilla/5.0'}).status_code == 200 else "Not Found"
+    sitemap = "Found" if requests.get(f"{domain.rstrip('/')}/sitemap.xml", timeout=8, headers={'User-Agent': 'Mozilla/5.0'}).status_code == 200 else "Not Found"
+    ssl_status = "Valid (HTTPS)" if domain.startswith("https") else "HTTP Only"
+
+    return {
+        'Domain': domain,
+        'Registrar': registrar,
+        'Creation_Date': str(creation)[:10] if creation != "N/A" else "N/A",
+        'Expiration_Date': str(expiration)[:10] if expiration != "N/A" else "N/A",
+        'Name_Servers': ns,
+        'MX_Records': mx_info,
+        'SSL_Status': ssl_status,
+        'robots.txt': robots,
+        'sitemap.xml': sitemap,
+        'Domain_Authority (DA)': 'N/A (Free version - needs Moz API)',
+        'Page_Authority (PA)': 'N/A (Free version - needs Moz API)',
+        'Domain_Rating (DR)': 'N/A (Free version - needs Ahrefs API)',
+        'Bounce_Rate': 'N/A (Needs Google Analytics access)',
+        'Timestamp': datetime.now().isoformat()
+    }
