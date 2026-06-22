@@ -62,3 +62,39 @@ def get_domain_info(domain):
         'Bounce_Rate': 'N/A (Needs Google Analytics access)',
         'Timestamp': datetime.now().isoformat()
     }
+
+def crawl_page(base_url, max_pages=25):
+    headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
+    visited = set()
+    issues = []
+    pages_data = []
+    audit_data = []
+    to_crawl = [base_url]
+    
+    while to_crawl and len(visited) < max_pages:
+        current = to_crawl.pop(0)
+        if current in visited: continue
+        visited.add(current)
+        
+        try:
+            start_time = time.time()
+            resp = requests.get(current, headers=headers, timeout=12, allow_redirects=True)
+            load_time = round(time.time() - start_time, 2)
+            status = resp.status_code
+            
+            soup = BeautifulSoup(resp.text, 'html.parser')
+            
+            title = soup.title.string.strip() if soup.title and soup.title.string else "Missing Title"
+            meta = soup.find('meta', attrs={'name': 'description'})
+            meta_desc = meta['content'].strip() if meta and meta.get('content') else "Missing Meta Description"
+            h1 = soup.find('h1')
+            h1_text = h1.get_text(strip=True) if h1 else "Missing H1"
+            
+            # Canonical
+            canonical = soup.find('link', rel='canonical')
+            canonical_status = canonical['href'] if canonical and canonical.get('href') else "Missing"
+            
+            # Social Meta (OG)
+            og_title = soup.find('meta', property='og:title')
+            og_desc = soup.find('meta', property='og:description')
+            social_meta = "Present" if og_title or og_desc else "Missing"
