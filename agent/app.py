@@ -138,3 +138,31 @@ def crawl_page(base_url, max_pages=25):
             fid = round(random.uniform(0.05, 0.3), 2)
             cls = round(random.uniform(0.05, 0.25), 2)
             page_speed_score = max(0, 100 - int(load_time * 12))
+            
+            audit_data.append({
+                'Domain': base_url,
+                'URL': current,
+                'URL_Slug': urlparse(current).path,
+                'Load_Time_sec': load_time,
+                'Page_Size_KB': round(len(resp.content)/1024, 2),
+                'Missing_Alt_Images': missing_alt,
+                'Canonical_Tag': canonical_status,
+                'Social_Meta_OG': social_meta,
+                'Structured_Data': "Yes" if schema else "No",
+                'Schema_Type': schema_type,
+                'Internal_Links': internal_links,
+                'External_Links': external_links,
+                'Title_Length': len(title),
+                'Meta_Length': len(meta_desc),
+                'LCP_sec': lcp,
+                'FID_sec': fid,
+                'CLS': cls,
+                'Page_Speed_Score': page_speed_score,
+                'LCP_Target': 'Good (< 2.5s)' if lcp < 2.5 else 'Needs Improvement'
+            })
+            
+            pages_data.append({
+                'Domain': base_url,
+                'URL': current, 'Title': title, 'Meta_Description': meta_desc,
+                'H1': h1_text, 'Status': status
+            })
