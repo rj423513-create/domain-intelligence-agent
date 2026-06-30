@@ -10,56 +10,244 @@ import random
 import re
 from urllib.parse import urlparse
 
-st.set_page_config(page_title="SEO Domain Intelligence Agent", layout="wide", page_icon="🚀")
+st.set_page_config(page_title="SEO Domain Intelligence Agent", layout="wide")
 
-# Premium Theme with Better Contrast
+# Premium UI/UX Theme
 st.markdown("""
 <style>
-    .main {background-color: #0f172a; color: #e2e8f0;}
-    h1 {color: #22d3ee; font-size: 3rem; text-align: center;}
-    .subtitle {color: #94a3b8; text-align: center; font-size: 1.3rem;}
-    .stButton>button {background: linear-gradient(90deg, #22d3ee, #3b82f6); color: white; border-radius: 50px; padding: 16px 40px; font-weight: bold;}
-    .input-box {background: #1e2937; padding: 20px; border-radius: 16px; border: 1px solid #334155;}
-    .scanning-box {
-        background: #1e2937;
-        padding: 25px;
-        border-radius: 16px;
-        text-align: center;
-        border: 3px solid #22d3ee;
-        margin: 15px 0;
-        color: #e2e8f0;
-        font-size: 1.1rem;
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    
+    * {
+        font-family: 'Plus Jakarta Sans', sans-serif !important;
     }
-    .progress-bar {
-        height: 12px;
-        background: linear-gradient(90deg, #22d3ee, #3b82f6);
-        border-radius: 6px;
-        transition: width 0.3s ease;
+    
+    /* Background and global text color */
+    .stApp {
+        background: radial-gradient(circle at 50% 0%, #0f172a 0%, #080c14 100%) !important;
+        color: #f1f5f9 !important;
+    }
+    
+    /* Hide Streamlit components for a custom dashboard look */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    
+    /* Container spacing and dimensions */
+    .block-container {
+        padding-top: 2rem !important;
+        padding-bottom: 4rem !important;
+        max-width: 1200px !important;
+    }
+    
+    /* Glassmorphic layout card styling */
+    .glass-card, div[data-testid="stVerticalBlockBorderWrapper"] {
+        background: rgba(30, 41, 59, 0.45) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 16px !important;
+        padding: 1.8rem !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3) !important;
+        margin-bottom: 1.5rem !important;
+    }
+    
+    /* Actionable recommendations lists */
+    .recommendation-item {
+        background: rgba(30, 41, 59, 0.3);
+        border-left: 4px solid #475569;
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 0.75rem 0;
+        color: #cbd5e1;
+        font-size: 0.95rem;
+    }
+    
+    /* Custom premium stats metrics */
+    .metric-card {
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.6) 100%);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 16px;
+        padding: 1.5rem;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+    .metric-card:hover {
+        transform: translateY(-3px);
+        border-color: rgba(34, 211, 238, 0.3);
+    }
+    .metric-label {
+        font-size: 0.85rem;
+        color: #94a3b8;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 0.5rem;
+    }
+    .metric-value {
+        font-size: 2.25rem;
+        font-weight: 800;
+        text-shadow: 0 0 15px rgba(34, 211, 238, 0.2);
+    }
+    
+    /* Overwrite input textarea container styling */
+    div[data-baseweb="textarea"] {
+        background-color: rgba(15, 23, 42, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px !important;
+        padding: 5px !important;
+        transition: all 0.3s ease !important;
+    }
+    div[data-baseweb="textarea"]:focus-within {
+        border-color: #22d3ee !important;
+        box-shadow: 0 0 15px rgba(34, 211, 238, 0.15) !important;
+    }
+    textarea {
+        color: #f1f5f9 !important;
+        font-size: 0.95rem !important;
+    }
+    
+    /* Tab lists and buttons */
+    div[role="tablist"], div[data-baseweb="tab-list"] {
+        background-color: rgba(30, 41, 59, 0.3) !important;
+        border-radius: 12px !important;
+        padding: 6px !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        margin-bottom: 1.5rem !important;
+    }
+    button[role="tab"], button[data-baseweb="tab"], div[data-baseweb="tab"] {
+        color: #94a3b8 !important;
+        font-weight: 600 !important;
+        padding: 10px 20px !important;
+        border-radius: 8px !important;
+        transition: all 0.2s ease !important;
+        border: none !important;
+        background: transparent !important;
+    }
+    button[role="tab"]:hover, button[data-baseweb="tab"]:hover, div[data-baseweb="tab"]:hover {
+        color: #22d3ee !important;
+        background-color: rgba(255, 255, 255, 0.03) !important;
+    }
+    button[role="tab"][aria-selected="true"], button[data-baseweb="tab"][aria-selected="true"], div[data-baseweb="tab"][aria-selected="true"] {
+        background-color: rgba(34, 211, 238, 0.15) !important;
+        color: #22d3ee !important;
+        border: 1px solid rgba(34, 211, 238, 0.2) !important;
+    }
+    div[data-baseweb="tab-highlight"] {
+        display: none !important;
+    }
+    
+    /* Text readability overrides */
+    label, p, li {
+        color: #cbd5e1 !important;
+    }
+    h1, h2, h3, h4, h5, h6 {
+        color: #f1f5f9 !important;
+    }
+    div[data-testid="stWidgetLabel"] p {
+        color: #f1f5f9 !important;
+        font-weight: 600 !important;
+    }
+    div[data-testid="stSlider"] span {
+        color: #cbd5e1 !important;
+    }
+    div[data-testid="stNotification"] p {
+        color: #f1f5f9 !important;
+    }
+    
+    /* Keyframe Animations */
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    @keyframes pulse {
+        0%, 100% { opacity: 0.6; }
+        50% { opacity: 1; }
+    }
+    
+    /* Spinning element */
+    .circular-spinner {
+        width: 32px;
+        height: 32px;
+        border: 3px solid rgba(34, 211, 238, 0.1);
+        border-radius: 50%;
+        border-top: 3px solid #22d3ee;
+        animation: spin 1s linear infinite;
+        display: inline-block;
+    }
+    
+    /* Button redesign */
+    div.stButton > button {
+        background: linear-gradient(135deg, #22d3ee 0%, #3b82f6 50%, #6366f1 100%) !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 14px !important;
+        padding: 14px 28px !important;
+        font-size: 1.1rem !important;
+        font-weight: 700 !important;
+        box-shadow: 0 4px 25px rgba(59, 130, 246, 0.25) !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        width: 100% !important;
+        letter-spacing: 0.5px !important;
+    }
+    div.stButton > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 30px rgba(59, 130, 246, 0.4) !important;
+        filter: brightness(1.05) !important;
+        color: white !important;
+    }
+    div.stButton > button:active {
+        transform: translateY(0px) !important;
+    }
+    
+    /* Download button redesign */
+    div.stDownloadButton > button {
+        background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+        color: white !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 12px !important;
+        padding: 12px 24px !important;
+        font-weight: 700 !important;
+        font-size: 1rem !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+        transition: all 0.3s ease !important;
+        width: 100% !important;
+        letter-spacing: 0.5px !important;
+    }
+    div.stDownloadButton > button:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 8px 25px rgba(34, 211, 238, 0.2) !important;
+        border-color: #22d3ee !important;
+        color: white !important;
+    }
+    div.stDownloadButton > button:active {
+        transform: translateY(0px) !important;
     }
 </style>
 """, unsafe_allow_html=True)
 
-st.title("🚀 SEO Domain Intelligence Agent")
+st.markdown("<h1 style='font-weight:800; background: linear-gradient(135deg, #22d3ee 0%, #6366f1 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-align: center; margin-bottom: 0.5rem; font-size: 3.2rem;'>SEO Domain Intelligence Agent</h1>", unsafe_allow_html=True)
 st.markdown('<p class="subtitle">Multi-Website Enterprise SEO Analysis — Powered by Screaming Frog + Semrush + WebPageTest</p>', unsafe_allow_html=True)
 
-# Main Layout
-col_left, col_right = st.columns([2, 3])
+# Input Panel configured inside native bordered container
+with st.container(border=True):
+    st.markdown("<h3 style='margin-top: 0; color: #22d3ee; font-weight: 700; font-size: 1.3rem; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 0.75rem; margin-bottom: 1rem;'>Configuration Panel</h3>", unsafe_allow_html=True)
+    domains_input = st.text_area("Target Website URLs (one domain per line):", 
+                                value="https://www.adiartechloadcell.com\nhttps://jeenweb.com", 
+                                height=100)
+    col_c1, col_c2 = st.columns(2)
+    with col_c1:
+        max_pages = st.slider("Max crawl depth pages per domain:", 5, 100, 25)
+    with col_c2:
+        scan_speed = st.selectbox(
+            "Scan Speed / Simulation Delay:",
+            options=["Instant Demo (No delay)", "Accelerated Simulation (~5s)", "Thorough Deep Scan (~20s)"],
+            index=1
+        )
 
-with col_left:
-    st.markdown("### Enter Domains")
-    with st.container():
-        st.markdown('<div class="input-box">', unsafe_allow_html=True)
-        domains_input = st.text_area("", 
-                                    value="https://www.adiartechloadcell.com\nhttps://jeenweb.com", 
-                                    height=160, label_visibility="collapsed")
-        max_pages = st.slider("Max Pages per Domain", 5, 100, 25)
-        st.markdown('</div>', unsafe_allow_html=True)
+run_analysis = st.button("Start Full Multi-Website Analysis", type="primary", use_container_width=True)
 
-with col_right:
-    st.markdown("### Ready to Analyze?")
-    run_analysis = st.button("🚀 Start Full Multi-Website Analysis", type="primary", use_container_width=True)
-
-    scan_placeholder = st.empty()
+scan_placeholder = st.empty()
 
 # ===================== FUNCTIONS =====================
 def get_domain_info(domain):
@@ -93,14 +281,14 @@ def get_domain_info(domain):
         'SSL_Status': ssl_status,
         'robots.txt': robots,
         'sitemap.xml': sitemap,
-        'Domain_Authority (DA)': '[Check on Moz](https://moz.com/domain-analysis)',
-        'Page_Authority (PA)': '[Check on Moz](https://moz.com/domain-analysis)',
-        'Domain_Rating (DR)': '[Check on Ahrefs](https://ahrefs.com/website-authority-checker)',
-        'Bounce_Rate': '[Check on Google Analytics](https://analytics.google.com)',
+        'Domain_Authority (DA)': '[ Moz](https://moz.com/domain-analysis)',
+        'Page_Authority (PA)': '[Moz](https://moz.com/domain-analysis)',
+        'Domain_Rating (DR)': '[Ahrefs](https://ahrefs.com/website-authority-checker)',
+        'Bounce_Rate': '[Google Analytics](https://analytics.google.com)',
         'Timestamp': datetime.now().isoformat()
     }
 
-def crawl_page(base_url, max_pages=25):
+def crawl_page(base_url, max_pages=25, live_callback=None):
     headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'}
     visited = set()
     issues = []
@@ -182,6 +370,8 @@ def crawl_page(base_url, max_pages=25):
             })
             
             pages_data.append({'Domain': base_url, 'URL': current, 'Title': title, 'Meta_Description': meta_desc, 'H1': h1_text, 'Status': status})
+            if live_callback:
+                live_callback(current, status, load_time, title)
             
             for link in soup.find_all('a', href=True):
                 href = link['href']
@@ -212,21 +402,118 @@ if run_analysis:
         
         progress_bar = st.progress(0)
         
+        # Determine simulation sleep time
+        if scan_speed == "Instant Demo (No delay)":
+            sleep_time = 0.0
+        elif scan_speed == "Accelerated Simulation (~5s)":
+            sleep_time = 0.05
+        else:
+            sleep_time = 0.2
+
         for idx, domain in enumerate(domains):
-            for p in range(0, 101, 5):
+            # Dynamic scanning simulation
+            logs = [
+                "Initializing Intelligent SEO Agent...",
+                "Configuring secure handshake protocols...",
+                "Querying public WHOIS registry databases...",
+                "Analyzing domain registrar and name server propagation...",
+                "Locating and verifying DNS Mail Exchange (MX) records...",
+                "Requesting target robots.txt file...",
+                "Parsing crawl permissions from robots.txt...",
+                "Locating domain sitemap.xml structure...",
+                "Validating SSL certificate and encryption handshake...",
+                "Establishing crawl connections...",
+                "Analyzing document structure and headers...",
+                "Evaluating title tags and meta descriptions...",
+                "Analyzing internal/external hypermedia links...",
+                "Inspecting image assets and alt tags...",
+                "Simulating page load times and Core Web Vitals...",
+                "Calculating First Input Delay (FID)...",
+                "Calculating Cumulative Layout Shift (CLS)...",
+                "Evaluating Largest Contentful Paint (LCP)...",
+                "Compiling technical audit datasets...",
+                "Reviewing high-priority SEO recommendations..."
+            ]
+            
+            for p in range(0, 101, 1):
+                # Map progress to corresponding logs
+                log_idx = min(p // (100 // len(logs)), len(logs) - 1)
+                current_log = logs[log_idx]
+                
                 scan_placeholder.markdown(f"""
-                <div class="scanning-box">
-                    <h3>🔍 Scanning {domain}</h3>
-                    <p><strong>Progress: {p}%</strong></p>
-                    <div style="height: 12px; background: #334155; border-radius: 6px; margin: 10px 0;">
-                        <div class="progress-bar" style="width: {p}%;"></div>
+                <div style="
+                    background: linear-gradient(135deg, rgba(30, 41, 59, 0.75) 0%, rgba(15, 23, 42, 0.75) 100%);
+                    border: 1px solid rgba(34, 211, 238, 0.3);
+                    border-radius: 20px;
+                    padding: 2.5rem;
+                    text-align: center;
+                    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(34, 211, 238, 0.15);
+                    margin: 2rem 0;
+                    backdrop-filter: blur(12px);
+                    -webkit-backdrop-filter: blur(12px);
+                ">
+                    <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 1.5rem; gap: 1rem;">
+                        <div class="circular-spinner"></div>
+                        <h3 style="color: #22d3ee; font-size: 1.6rem; font-weight: 700; margin: 0; text-shadow: 0 0 10px rgba(34, 211, 238, 0.3);">
+                            Analyzing {domain}
+                        </h3>
+                    </div>
+                    <div style="color: #cbd5e1; font-size: 1rem; margin-bottom: 1.5rem; font-weight: 500; height: 24px; animation: pulse 2s infinite;">
+                        {current_log}
+                    </div>
+                    <div style="
+                        height: 12px;
+                        background: rgba(51, 65, 85, 0.5);
+                        border-radius: 6px;
+                        overflow: hidden;
+                        margin: 1.5rem 0;
+                        border: 1px solid rgba(255, 255, 255, 0.05);
+                    ">
+                        <div style="
+                            height: 100%;
+                            width: {p}%;
+                            background: linear-gradient(90deg, #22d3ee 0%, #3b82f6 50%, #6366f1 100%);
+                            border-radius: 6px;
+                            box-shadow: 0 0 15px rgba(34, 211, 238, 0.6);
+                            transition: width 0.3s ease-out;
+                        "></div>
+                    </div>
+                    <div style="color: #f1f5f9; font-size: 1.1rem; font-weight: 700;">
+                        Crawl Engine Progress: <span style="color: #22d3ee;">{p}%</span>
                     </div>
                 </div>
                 """, unsafe_allow_html=True)
-                time.sleep(0.06)
+                if sleep_time > 0:
+                    time.sleep(sleep_time)
+            
+            # Setup real-time crawler logs
+            crawl_count_placeholder = st.empty()
+            crawl_log_placeholder = st.empty()
+            
+            def make_live_callback():
+                count = [0]
+                def live_callback(url, status, load_time, title):
+                    count[0] += 1
+                    crawl_count_placeholder.markdown(f"""
+                    <div style="background: rgba(30, 41, 59, 0.45); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 1rem; margin-bottom: 0.5rem;">
+                        <h4 style="margin: 0; color: #22d3ee;">Active Crawling: {domain}</h4>
+                        <p style="margin: 5px 0 0 0; color: #cbd5e1;">Pages Audited: <strong style="color: #22d3ee;">{count[0]} / {max_pages}</strong></p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    crawl_log_placeholder.markdown(f"""
+                    <div class="recommendation-item" style="border-left-color: #475569; margin: 0.25rem 0;">
+                        <strong>Status:</strong> <code>{status}</code> | <strong>Load Time:</strong> {load_time}s | <strong>URL:</strong> <a href="{url}" target="_blank" style="color: #22d3ee; text-decoration: none;">{url}</a>
+                        <br/><span style="font-size: 0.85rem; color: #94a3b8;"><strong>Page Title:</strong> {title[:100]}</span>
+                    </div>
+                    """, unsafe_allow_html=True)
+                return live_callback
             
             df_domain = pd.DataFrame([get_domain_info(domain)])
-            df_pages, df_issues, df_audit = crawl_page(domain, max_pages)
+            df_pages, df_issues, df_audit = crawl_page(domain, max_pages, live_callback=make_live_callback())
+            
+            # Clean up the crawl placeholder UI
+            crawl_count_placeholder.empty()
+            crawl_log_placeholder.empty()
             
             if not df_issues.empty: df_issues['Domain'] = domain
             if not df_audit.empty: df_audit['Domain'] = domain
@@ -245,16 +532,45 @@ if run_analysis:
         df_all_pages = pd.concat(all_pages, ignore_index=True)
         df_all_issues = pd.concat(all_issues, ignore_index=True)
         df_all_audit = pd.concat(all_audit, ignore_index=True)
+        st.success(f"Analysis Completed for {len(domains)} Websites!")
         
-        st.success(f"🎉 Analysis Completed for {len(domains)} Websites!")
-        
-        tab1, tab2, tab3, tab4, tab5 = st.tabs(["📊 Summary", "🌐 Domain Info", "📄 Crawled Pages", "⚠️ SEO Issues", "🔧 Technical Audit"])
+        tab1, tab2, tab3, tab4, tab5 = st.tabs(["Summary", "Domain Info", "Crawled Pages", "SEO Issues", "Technical Audit"])
         
         with tab1:
             col1, col2, col3 = st.columns(3)
-            with col1: st.metric("Total Domains", len(domains))
-            with col2: st.metric("Total Issues", len(df_all_issues))
-            with col3: st.metric("High/Critical", len(df_all_issues[df_all_issues.get('Severity', pd.Series()).isin(['High', 'Critical'])]) if not df_all_issues.empty else 0)
+            high_crit_count = len(df_all_issues[df_all_issues.get('Severity', pd.Series()).isin(['High', 'Critical'])]) if not df_all_issues.empty else 0
+            
+            with col1:
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-label">Total Domains Analyzed</div>
+                    <div class="metric-value" style="color: #22d3ee;">{len(domains)}</div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+            with col2:
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-label">Total SEO Issues</div>
+                    <div class="metric-value" style="color: #818cf8; text-shadow: 0 0 15px rgba(129, 140, 248, 0.2);">{len(df_all_issues)}</div>
+                </div>
+                """, unsafe_allow_html=True)
+                
+            with col3:
+                st.markdown(f"""
+                <div class="metric-card">
+                    <div class="metric-label">High & Critical Issues</div>
+                    <div class="metric-value" style="color: #f87171; text-shadow: 0 0 15px rgba(248, 113, 113, 0.2);">{high_crit_count}</div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            if not df_all_pages.empty and 'Status' in df_all_pages.columns:
+                st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem;'>HTTP Status Code Distribution</h3>", unsafe_allow_html=True)
+                status_counts = df_all_pages['Status'].value_counts().reset_index()
+                status_counts.columns = ['Status Code', 'Number of Pages']
+                status_counts['Status Code'] = status_counts['Status Code'].astype(str)
+                # Show Streamlit native bar chart
+                st.bar_chart(status_counts.set_index('Status Code'))
         
         with tab2: st.dataframe(df_all_domain, use_container_width=True)
         with tab3: st.dataframe(df_all_pages, use_container_width=True)
@@ -265,17 +581,27 @@ if run_analysis:
                 st.info("No issues found")
         
         with tab5:
-            st.subheader("🔧 Technical Audit + Core Web Vitals")
+            st.markdown("<h3 style='color: #22d3ee; margin-top: 1.5rem;'>Technical Audit + Core Web Vitals</h3>", unsafe_allow_html=True)
             if not df_all_audit.empty:
                 st.dataframe(df_all_audit, use_container_width=True)
-            st.subheader("💡 Recommendations")
+                
+                if 'Load_Time_sec' in df_all_audit.columns:
+                    st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem;'>Page Load Time by URL (seconds)</h3>", unsafe_allow_html=True)
+                    load_df = df_all_audit[['URL_Slug', 'Load_Time_sec']].copy()
+                    load_df['Page'] = load_df['URL_Slug'].apply(lambda x: x if len(x) < 25 else x[:22] + '...')
+                    # Render using streamlit area_chart or bar_chart
+                    st.area_chart(load_df.set_index('Page')['Load_Time_sec'])
+            
+            st.markdown("<h3 style='color: #22d3ee; margin-top: 2rem;'>Actions & Recommendations</h3>", unsafe_allow_html=True)
             st.markdown("""
-            - **Core Web Vitals**: Keep LCP < 2.5s
-            - Fix all 4xx/5xx errors
-            - Add Canonical tags
-            - Add OG meta tags
-            - Improve internal linking
-            """)
+            <div class="glass-card" style="padding: 1.5rem !important;">
+                <div class="recommendation-item"><strong>Core Web Vitals:</strong> Focus on optimizing Largest Contentful Paint (LCP) under 2.5s.</div>
+                <div class="recommendation-item"><strong>Server & Client Errors:</strong> Address any 4xx (client) and 5xx (server) responses immediately to prevent crawl budget waste.</div>
+                <div class="recommendation-item"><strong>Canonical Tags:</strong> Verify self-referencing canonical links are present on all indexable pages.</div>
+                <div class="recommendation-item"><strong>Social Metadata:</strong> Implement Facebook Open Graph (OG) tags and Twitter Cards for better social CTR.</div>
+                <div class="recommendation-item"><strong>Crawl Architecture:</strong> Improve internal link equity by reducing orphaned pages and link silos.</div>
+            </div>
+            """, unsafe_allow_html=True)
         
         timestamp = datetime.now().strftime("%Y%m%d_%H%M")
         filename = f"Multi_SEO_Report_{timestamp}.xlsx"
@@ -288,8 +614,29 @@ if run_analysis:
             if not df_all_audit.empty:
                 df_all_audit.to_excel(writer, sheet_name='Technical_Audit', index=False)
         
+        st.markdown("<div style='margin-top: 2rem;'></div>", unsafe_allow_html=True)
+        st.markdown("""
+        <div class="glass-card" style="text-align: center; border: 1px dashed rgba(34, 211, 238, 0.4); margin-bottom: 1rem;">
+            <h4 style="color: #22d3ee; margin-top:0; font-size:1.2rem;">Export Crawl Intelligence Datasets</h4>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 0;">Download a consolidated Microsoft Excel spreadsheet containing Domain configurations, Crawled Pages, technical details and parsed SEO issues.</p>
+        </div>
+        """, unsafe_allow_html=True)
+        
         with open(filename, "rb") as file:
-            st.download_button("📥 Download Full Report (4 Sheets)", data=file, file_name=filename, mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-
+            st.download_button(
+                "Download Enterprise SEO Report (4 Sheets)", 
+                data=file, 
+                file_name=filename, 
+                mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                use_container_width=True
+            )
+ 
 else:
-    st.info("👈 Enter domains on the left and click the big button to start")
+    st.markdown("""
+    <div class="glass-card" style="text-align: center; padding: 3rem !important; border: 1px dashed rgba(99, 102, 241, 0.2); margin-top: 2rem;">
+        <h3 style="color: #22d3ee; margin-top: 0; font-weight: 700;">Ready to Run SEO Scan</h3>
+        <p style="color: #94a3b8; max-width: 600px; margin: 0 auto 1.5rem auto; font-size: 1.05rem;">
+            Provide one or more website URLs in the configuration card above, adjust your desired crawl limits, and launch the domain intelligence agent to start auditing.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
