@@ -1,11 +1,29 @@
-# 🚀 Domain Intelligence Agent
+# SEO Domain Intelligence Agent
 
-**Bulk WHOIS + DNS + BuiltWith Analysis Tool** 
-
-A professional AI-powered agent to analyze 50-100+ domains in one click.
+**Multi-Website Enterprise SEO Analysis Tool**  
+*Inspired by Screaming Frog + Semrush + WebPageTest*
 
 ---
 
+## Features
+
+- **Multi-Website Analysis** — Analyze multiple domains at once
+- **Deep Crawling** — Crawl up to 100 pages per domain with on-page SEO checks
+- **Domain Intelligence** — WHOIS, DNS records, SSL, robots.txt, sitemap
+- **Technical Audit** — Core Web Vitals (LCP, FID, CLS), Page Speed, Missing Alt Text
+- **SEO Issues Detection** — Title, Meta, H1, Broken Links, Server Errors (4xx/5xx)
+- **Live Scanning Animation** — Beautiful real-time progress
+- **Excel Export** — Full report with 4 sheets (Domain Info, Crawled Pages, SEO Issues, Technical Audit)
+- **Clean & Modern UI** — GTmetrix-inspired dark theme
+
+---
+
+##  Quick Start
+
+### 1. Install Dependencies
+
+```bash
+pip install streamlit pandas requests beautifulsoup4 whois dnspython openpyxl
 ## ✨ Features
 
 - **Multi-source Analysis**: WHOIS, DNS Records (A, MX, NS, TXT), Tech Stack
@@ -18,7 +36,7 @@ A professional AI-powered agent to analyze 50-100+ domains in one click.
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 domain-intelligence-agent/<br>
 ├── agent/<br>
@@ -31,7 +49,7 @@ domain-intelligence-agent/<br>
 └── .gitignore<br>
 text
 
-## 🛠️ Technologies Used
+## Technologies Used
 
 Python 3
 Streamlit (UI)
